@@ -1,72 +1,103 @@
 // ===== CONFIG =====
-const STORAGE_KEYS = {
-    PROFILES: 'zsys_profiles',
-    ACTIVE: 'zsys_active',
-    DATA: 'zsys_data_',
-    HISTORY: 'zsys_history_',
-    LAST_DATE: 'zsys_lastDate'
-};
+const STORAGE_KEY = 'zsys_userData';
+const RESTORE_KEY = 'zsys_restores';
+const HISTORY_KEY = 'zsys_history';
 
 const PRAYER_TIMES = {
-    Fajr: { start: 4, end: 6, label: '4:30-6:00' },
-    Dhuhr: { start: 12, end: 15, label: '12:00-15:00' },
-    Asr: { start: 15.5, end: 18, label: '15:30-18:00' },
-    Maghrib: { start: 18, end: 20, label: '18:00-20:00' },
-    Isha: { start: 20, end: 23.99, label: '20:00-00:00' }
+    Fajr:    { start: 4, end: 6,   label: '4:30-6:00' },
+    Dhuhr:   { start: 12, end: 15,  label: '12-3 PM' },
+    Asr:     { start: 15.5, end: 18, label: '3:30-6 PM' },
+    Maghrib: { start: 18, end: 20,  label: '6-8 PM' },
+    Isha:    { start: 20, end: 23.99, label: '8-12 AM' }
 };
 
-const DEFAULT_TASKS = [
-    // CRITICAL (50 pts)
-    { id: 1, name: 'Solved Past Paper', points: 14, category: 'critical' },
-    { id: 2, name: 'Study Session (2 hrs)', points: 12, category: 'critical' },
-    { id: 3, name: 'Study Session 2 (2 hrs)', points: 12, category: 'critical' },
-    { id: 4, name: 'No Fap + No Smoke/Vape', points: 12, category: 'critical' },
-    // WORSHIP (30 pts) - Rendered separately
-    // IMPORTANT (54 pts)
-    { id: 5, name: 'Sleep at 3 AM (Wake 10 AM)', points: 10, category: 'important' },
-    { id: 6, name: 'Exercise/Running (30 min)', points: 8, category: 'important' },
-    { id: 7, name: 'No Social Media Scrolling', points: 8, category: 'important' },
-    { id: 8, name: 'Vocabulary + Current Affairs (1 hr)', points: 8, category: 'important' },
-    { id: 9, name: 'Morning Revision (30 min)', points: 8, category: 'important' },
-    { id: 10, name: '10k Steps Walking', points: 6, category: 'important' },
-    { id: 11, name: 'Dinner Before 6 PM', points: 6, category: 'important' },
-    // GOOD HABIT (36 pts)
-    { id: 12, name: 'Breakfast After 10:30 AM', points: 6, category: 'good' },
-    { id: 13, name: 'No Sugar/Junk Food Today', points: 6, category: 'good' },
-    { id: 14, name: 'Cold Shower (Morning)', points: 6, category: 'good' },
-    { id: 15, name: 'Water (10+ glasses)', points: 6, category: 'good' },
-    { id: 16, name: 'Stretching (15 min)', points: 6, category: 'good' },
-    { id: 17, name: 'Read 5 Pages (Book)', points: 6, category: 'good' },
-    // BONUS (30 pts)
-    { id: 18, name: 'Shower Before Sleep', points: 6, category: 'bonus' },
-    { id: 19, name: 'Skin Care Routine', points: 6, category: 'bonus' },
-    { id: 20, name: 'Gratitude/Journal (5 min)', points: 6, category: 'bonus' },
-    { id: 21, name: 'Custom Task Slot 1', points: 6, category: 'bonus' },
-    { id: 22, name: 'Custom Task Slot 2', points: 6, category: 'bonus' },
-];
+const PRAYER_ORDER = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
-const TITLE_SYSTEM = {
-    ROOKIE: { emoji: '🔰', minPoints: 0, name: 'ROOKIE' },
-    GRINDER: { emoji: '⚙️', minPoints: 50, name: 'GRINDER' },
-    WARRIOR: { emoji: '🥷', minPoints: 100, name: 'WARRIOR' },
-    ELITE: { emoji: '🔥', minPoints: 150, name: 'ELITE' },
-    SIGMA: { emoji: '🗿', minPoints: 200, minStreak: 7, name: 'SIGMA' },
-    LEGEND: { emoji: '👁️‍🗨️', minPoints: 200, minStreak: 15, name: 'LEGEND' },
-    IMMORTAL: { emoji: '♾️', minPoints: 200, minStreak: 30, name: 'IMMORTAL' },
+const TIER_CONFIG = {
+    easy: {
+        name: 'EASY', emoji: '🔰', label: 'ROOKIE',
+        prayers: [
+            { name: 'Fajr Prayer', pts: 8 }, { name: 'Dhuhr Prayer', pts: 8 },
+            { name: 'Asr Prayer', pts: 8 }, { name: 'Maghrib Prayer', pts: 8 },
+            { name: 'Isha Prayer', pts: 8 }
+        ],
+        tasks: [
+            { name: 'Focus Work (1 hr)', pts: 20, locked: true },
+            { name: 'Sleep on Time', pts: 20, locked: true },
+            { name: 'No Bad Habits', pts: 20, locked: true }
+        ],
+        customSlots: 0
+    },
+    medium: {
+        name: 'MEDIUM', emoji: '⚔️', label: 'WARRIOR',
+        prayers: [
+            { name: 'Fajr Prayer', pts: 7 }, { name: 'Dhuhr Prayer', pts: 7 },
+            { name: 'Asr Prayer', pts: 7 }, { name: 'Maghrib Prayer', pts: 7 },
+            { name: 'Isha Prayer', pts: 7 }
+        ],
+        tasks: [
+            { name: 'Focus Work (2 hrs)', pts: 12, locked: true },
+            { name: 'Sleep on Time', pts: 8, locked: true },
+            { name: 'No Fap/Smoke', pts: 10, locked: true },
+            { name: 'Exercise (30 min)', pts: 8, locked: true },
+            { name: 'No Social Media', pts: 8, locked: true }
+        ],
+        customSlots: 2
+    },
+    hard: {
+        name: 'HARD', emoji: '🗿', label: 'SIGMA',
+        prayers: [
+            { name: 'Fajr Prayer', pts: 5 }, { name: 'Dhuhr Prayer', pts: 5 },
+            { name: 'Asr Prayer', pts: 5 }, { name: 'Maghrib Prayer', pts: 5 },
+            { name: 'Isha Prayer', pts: 5 }
+        ],
+        tasks: [
+            { name: 'Study 3 hrs', pts: 8, locked: true },
+            { name: 'Past Paper Solved', pts: 8, locked: true },
+            { name: 'Sleep on Time', pts: 6, locked: true },
+            { name: 'No Fap/Smoke', pts: 8, locked: true },
+            { name: 'Exercise (45 min)', pts: 6, locked: true },
+            { name: 'No Social Media', pts: 6, locked: true },
+            { name: 'Current Affairs', pts: 6, locked: true },
+            { name: 'Revision (30 min)', pts: 6, locked: true }
+        ],
+        customSlots: 4
+    }
 };
 
 // ===== STATE =====
-let appState = null;
-let activeProfileId = null;
-let allProfiles = [];
-let bonusPoints = 0;
+let userData = null;
 
-// ===== KARACHI TIME =====
+function getDefaultData(name, gender, tier) {
+    const cfg = TIER_CONFIG[tier];
+    const today = getTodayKey();
+    return {
+        name, gender, tier,
+        startDate: today,
+        totalDays: 30,
+        streak: { current: 1, best: 1 },
+        today: {
+            dateKey: today,
+            checked: [],
+            prayers: {},
+            score: 0
+        },
+        customTasks: Array(cfg.customSlots).fill(null).map((_, i) => ({
+            name: `Custom Task ${i+1}`,
+            pts: tier === 'hard' ? 5 : tier === 'medium' ? (i === 0 ? 7 : 6) : 0,
+            locked: false
+        })),
+        history: {},
+        lastResetMonth: new Date().getMonth()
+    };
+}
+
+// ===== TIME =====
 function getKarachiTime() {
     const now = new Date();
     const offset = 5 * 60;
-    const localOffset = now.getTimezoneOffset();
-    return new Date(now.getTime() + (offset + localOffset) * 60000);
+    const local = now.getTimezoneOffset();
+    return new Date(now.getTime() + (offset + local) * 60000);
 }
 
 function getTodayKey() {
@@ -75,189 +106,302 @@ function getTodayKey() {
 }
 
 function getCurrentHour() {
-    return getKarachiTime().getHours() + getKarachiTime().getMinutes() / 60;
+    const t = getKarachiTime();
+    return t.getHours() + t.getMinutes() / 60;
+}
+
+function getDayNumber() {
+    const start = new Date(userData.startDate);
+    const today = getKarachiTime();
+    const diff = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
+    return Math.max(1, Math.min(diff, userData.totalDays));
 }
 
 // ===== STORAGE =====
-function loadProfiles() {
-    try { allProfiles = JSON.parse(localStorage.getItem(STORAGE_KEYS.PROFILES) || '[]'); }
-    catch(e) { allProfiles = []; }
+function loadData() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        userData = raw ? JSON.parse(raw) : null;
+    } catch(e) {
+        userData = null;
+    }
+    
+    if (!userData) {
+        // Show onboarding
+        showOnboarding();
+        return false;
+    }
+    
+    // Check day reset
+    const today = getTodayKey();
+    if (userData.today.dateKey !== today) {
+        archiveToday();
+        userData.today.dateKey = today;
+        userData.today.checked = [];
+        userData.today.prayers = {};
+        userData.today.score = 0;
+        userData.streak.current = getDayNumber();
+        
+        // Reset monthly restores
+        const currentMonth = new Date().getMonth();
+        if (userData.lastResetMonth !== currentMonth) {
+            userData.lastResetMonth = currentMonth;
+            localStorage.setItem(RESTORE_KEY, '5');
+        }
+        saveData();
+    }
+    
+    return true;
 }
 
-function saveProfiles() {
-    localStorage.setItem(STORAGE_KEYS.PROFILES, JSON.stringify(allProfiles));
+function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData));
 }
 
-function getDefaultState() {
-    return {
-        settings: { totalDays: 30, goal: 'exam', age: 18 },
-        streak: { current: 1, best: 1 },
-        tasks: JSON.parse(JSON.stringify(DEFAULT_TASKS)),
-        today: {
-            dateKey: getTodayKey(),
-            checked: [],
-            prayers: {},
-            proofs: {},
-            score: 0
-        },
-        bonusPoints: 0
+function archiveToday() {
+    if (!userData.history) userData.history = {};
+    userData.history[userData.today.dateKey] = {
+        score: userData.today.score,
+        checked: [...userData.today.checked],
+        prayers: {...userData.today.prayers}
     };
 }
 
-function loadProfile(id) {
-    try {
-        const data = localStorage.getItem(STORAGE_KEYS.DATA + id);
-        appState = data ? JSON.parse(data) : getDefaultState();
-    } catch(e) {
-        appState = getDefaultState();
+function getRestores() {
+    const month = new Date().getMonth();
+    const stored = localStorage.getItem(RESTORE_KEY);
+    if (!stored) {
+        localStorage.setItem(RESTORE_KEY, '5');
+        return 5;
     }
-    if (!appState.today.prayers) appState.today.prayers = {};
-    if (!appState.today.proofs) appState.today.proofs = {};
-    if (!appState.bonusPoints) appState.bonusPoints = 0;
-    bonusPoints = appState.bonusPoints || 0;
-    
-    checkDayReset();
+    return parseInt(stored);
 }
 
-function saveState() {
-    if (!activeProfileId) return;
-    appState.bonusPoints = bonusPoints;
-    localStorage.setItem(STORAGE_KEYS.DATA + activeProfileId, JSON.stringify(appState));
-}
-
-// ===== AUTO RESET CHECK =====
-function checkDayReset() {
-    const today = getTodayKey();
-    if (appState.today.dateKey !== today) {
-        // Archive yesterday
-        archiveDay();
-        // Reset daily
-        appState.today.dateKey = today;
-        appState.today.checked = [];
-        appState.today.prayers = {};
-        appState.today.proofs = {};
-        appState.today.score = 0;
-        saveState();
+function useRestore() {
+    let restores = getRestores();
+    if (restores > 0) {
+        restores--;
+        localStorage.setItem(RESTORE_KEY, String(restores));
+        return true;
     }
+    return false;
 }
 
-function archiveDay() {
-    const historyKey = STORAGE_KEYS.HISTORY + activeProfileId;
-    let history = [];
-    try { history = JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch(e) {}
-    history.push({
-        date: appState.today.dateKey,
-        score: appState.today.score,
-        checked: [...appState.today.checked],
-        prayers: {...appState.today.prayers}
-    });
-    if (history.length > 90) history = history.slice(-90);
-    localStorage.setItem(historyKey, JSON.stringify(history));
+// ===== ONBOARDING =====
+function showOnboarding() {
+    document.body.innerHTML = `
+        <div class="onboard-overlay" id="onboardOverlay">
+            <div class="onboard-card" id="onboardCard">
+                <div id="onboardStep1">
+                    <h2>⚡ ENTER THE VOID</h2>
+                    <input type="text" id="onboardName" placeholder="Your Name" class="modal-input" maxlength="20">
+                    <button class="scan-btn full" onclick="onboardNext1()">NEXT</button>
+                </div>
+                <div id="onboardStep2" class="hidden">
+                    <h2>⚡ IDENTITY</h2>
+                    <div class="gender-select">
+                        <button class="gender-btn" onclick="onboardSelectGender('male')">👦 MALE</button>
+                        <button class="gender-btn" onclick="onboardSelectGender('female')">👧 FEMALE</button>
+                    </div>
+                </div>
+                <div id="onboardStep3" class="hidden">
+                    <h2>⚡ CHOOSE YOUR GRIND</h2>
+                    <button class="tier-btn easy" onclick="onboardSelectTier('easy')">🟢 EASY<br><small>8 Tasks • 100 Pts</small></button>
+                    <button class="tier-btn medium" onclick="onboardSelectTier('medium')">🟡 MEDIUM<br><small>12 Tasks • 100 Pts</small></button>
+                    <button class="tier-btn hard" onclick="onboardSelectTier('hard')">🔴 HARD<br><small>17 Tasks • 100 Pts</small></button>
+                </div>
+            </div>
+        </div>
+        <style>
+            .onboard-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:#000; display:flex; justify-content:center; align-items:center; z-index:9999; }
+            .onboard-card { text-align:center; padding:30px 20px; width:90%; max-width:380px; }
+            .onboard-card h2 { color:#00FF88; font-size:1.2rem; letter-spacing:3px; margin-bottom:20px; font-family:monospace; }
+            .gender-select { display:flex; gap:10px; flex-direction:column; }
+            .gender-btn, .tier-btn { width:100%; padding:14px; background:#0A0A0A; border:1px solid #1A1A1A; color:#E0E0E0; font-family:monospace; font-size:0.9rem; cursor:pointer; border-radius:8px; margin-bottom:8px; letter-spacing:2px; }
+            .tier-btn small { font-size:0.6rem; color:#666; display:block; margin-top:4px; }
+            .tier-btn.easy:active { border-color:#00FF88; }
+            .tier-btn.medium:active { border-color:#FBBF24; }
+            .tier-btn.hard:active { border-color:#8B5CF6; }
+            .hidden { display:none !important; }
+        </style>
+    `;
 }
 
-// ===== STARFIELD =====
-function initStarfield() {
-    const canvas = document.getElementById('starfieldCanvas');
+let onboardGender = '';
+
+function onboardNext1() {
+    const name = document.getElementById('onboardName').value.trim();
+    if (!name) return alert('Enter your name!');
+    document.getElementById('onboardStep1').classList.add('hidden');
+    document.getElementById('onboardStep2').classList.remove('hidden');
+    document.getElementById('onboardName').value = name;
+}
+
+function onboardSelectGender(g) {
+    onboardGender = g;
+    document.getElementById('onboardStep2').classList.add('hidden');
+    document.getElementById('onboardStep3').classList.remove('hidden');
+}
+
+function onboardSelectTier(tier) {
+    const name = document.getElementById('onboardName').value.trim();
+    userData = getDefaultData(name, onboardGender, tier);
+    saveData();
+    localStorage.setItem(RESTORE_KEY, '5');
+    location.reload();
+}
+
+// ===== PARTICLES =====
+function initParticles() {
+    const canvas = document.getElementById('particleCanvas');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     
-    const stars = Array(150).fill().map(() => ({
+    const particles = Array(80).fill().map(() => ({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        r: Math.random() * 1.5 + 0.3,
-        twinkle: Math.random() * Math.PI * 2,
-        speed: Math.random() * 0.02 + 0.005
+        r: Math.random() * 1.2 + 0.2,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        alpha: Math.random() * 0.4 + 0.1
     }));
     
     function draw() {
-        ctx.fillStyle = '#020408';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        stars.forEach(s => {
-            s.twinkle += s.speed;
-            const alpha = 0.3 + Math.sin(s.twinkle) * 0.3;
-            ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            if (p.x < 0) p.x = canvas.width;
+            if (p.x > canvas.width) p.x = 0;
+            if (p.y < 0) p.y = canvas.height;
+            if (p.y > canvas.height) p.y = 0;
+            
+            ctx.fillStyle = `rgba(139, 92, 246, ${p.alpha})`;
             ctx.beginPath();
-            ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
             ctx.fill();
         });
-        
         requestAnimationFrame(draw);
     }
-    
     draw();
-    window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    });
 }
 
-// ===== RENDER ALL =====
+// ===== RENDER =====
 function renderAll() {
-    if (!appState) return;
+    const cfg = TIER_CONFIG[userData.tier];
+    document.getElementById('pilotName').textContent = userData.name;
+    document.getElementById('pilotMode').textContent = `${cfg.label} • ${cfg.name} MODE`;
+    document.getElementById('rankEmoji').textContent = getRankEmoji();
+    
+    const day = getDayNumber();
+    document.getElementById('dayBadge').textContent = `DAY ${day}`;
+    document.getElementById('currentDay').textContent = day;
+    document.getElementById('totalDays').textContent = userData.totalDays;
+    
+    const pct = Math.round((day / userData.totalDays) * 100);
+    document.getElementById('progressPercent').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('startDate').textContent = 'Started: ' + formatDate(userData.startDate);
+    
+    document.getElementById('streakCount').textContent = userData.streak.current;
+    document.getElementById('bestStreak').textContent = userData.streak.best;
+    document.getElementById('restoreCount').textContent = getRestores();
+    document.getElementById('restoreLeft').textContent = getRestores() + ' left this month';
+    
+    renderWeek();
     renderPrayers();
     renderTasks();
-    updateUI();
-    updateResetTimer();
+    updateScore();
 }
 
-function updateUI() {
-    document.getElementById('pilotName').textContent = activeProfileId ? 
-        (allProfiles.find(p => p.id === activeProfileId)?.name || 'ZAYN') : 'ZAYN';
-    document.getElementById('currentDayDisplay').textContent = appState.streak.current;
-    document.getElementById('totalDaysInput').value = appState.settings.totalDays;
-    document.getElementById('streakCount').textContent = appState.streak.current;
-    document.getElementById('bestStreak').textContent = appState.streak.best;
-    updateProgress();
-    updateTitle();
-    renderProfileDropdown();
+function getRankEmoji() {
+    const day = getDayNumber();
+    if (day >= 30) return '♾️';
+    if (day >= 15) return '👁️‍🗨️';
+    if (day >= 7) return '🔥';
+    if (day >= 3) return '⚔️';
+    return TIER_CONFIG[userData.tier].emoji;
 }
 
-function updateProgress() {
-    const pct = Math.min((appState.streak.current / appState.settings.totalDays) * 100, 100);
-    document.getElementById('progressFill').style.width = pct + '%';
-    document.getElementById('progressLabel').textContent = 
-        `WARP: ${appState.streak.current} / ${appState.settings.totalDays} DAYS`;
+function formatDate(dateStr) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-function updateTitle() {
-    const titles = Object.entries(TITLE_SYSTEM).reverse();
-    let currentTitle = titles.find(([_, t]) => {
-        if (t.minStreak) return bonusPoints >= t.minPoints && appState.streak.current >= t.minStreak;
-        return bonusPoints >= t.minPoints;
-    });
-    if (!currentTitle) currentTitle = ['ROOKIE', TITLE_SYSTEM.ROOKIE];
+// ===== WEEK VIEW =====
+function renderWeek() {
+    const today = getKarachiTime();
+    const dayOfWeek = today.getDay(); // 0=Sun
     
-    const [_, title] = currentTitle;
-    document.getElementById('rankDisplay').innerHTML = `
-        <span class="rank-icon">${title.emoji}</span>
-        <span class="rank-text">${title.name}</span>
-    `;
-    document.getElementById('integrityScore').textContent = 
-        Math.min(100, 70 + (appState.streak.current * 2)) + '%';
+    const days = [];
+    const weekRange = document.getElementById('weekRange');
+    
+    // Calculate week range
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - dayOfWeek);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    
+    weekRange.textContent = `${formatDate(weekStart.toISOString().split('T')[0])} - ${formatDate(weekEnd.toISOString().split('T')[0])}`;
+    
+    // Get 7 days
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(weekStart);
+        d.setDate(weekStart.getDate() + i);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        const isToday = key === getTodayKey();
+        const isFuture = d > today;
+        
+        let status = 'future';
+        let icon = '⏳';
+        
+        if (userData.history && userData.history[key]) {
+            status = userData.history[key].score >= 60 ? 'passed' : 'failed';
+            icon = status === 'passed' ? '✅' : '❌';
+        } else if (isToday) {
+            status = 'today';
+            icon = '🔥';
+        } else if (isFuture) {
+            icon = '⏳';
+        } else {
+            // Past but no data
+            icon = '⬜';
+        }
+        
+        days.push({ name: ['SUN','MON','TUE','WED','THU','FRI','SAT'][d.getDay()], icon, status, date: d.getDate() });
+    }
+    
+    document.getElementById('weekGrid').innerHTML = days.map(d => `
+        <div class="week-day ${d.status}">
+            <span class="day-name">${d.name}</span>
+            <span class="day-icon">${d.icon}</span>
+        </div>
+    `).join('');
 }
 
 // ===== PRAYERS =====
 function renderPrayers() {
+    const hour = getCurrentHour();
     const grid = document.getElementById('prayerGrid');
-    const currentHour = getCurrentHour();
     
-    grid.innerHTML = Object.entries(PRAYER_TIMES).map(([name, time]) => {
-        const status = appState.today.prayers[name];
-        let className = 'prayer-slot';
+    grid.innerHTML = PRAYER_ORDER.map(name => {
+        const time = PRAYER_TIMES[name];
+        const status = userData.today.prayers[name];
+        let cls = 'prayer-slot';
         let icon = '⏳';
         
-        if (status === true) { className += ' done'; icon = '✅'; }
-        else if (status === false) { className += ' missed'; icon = '❌'; }
+        if (status === true) { cls += ' done'; icon = '✅'; }
+        else if (status === false) { cls += ' missed'; icon = '❌'; }
+        else {
+            const isLocked = hour < time.start || hour > time.end + 0.5;
+            if (isLocked) cls += ' locked';
+        }
         
-        const isLocked = currentHour < time.start || currentHour > time.end + 0.5;
-        if (isLocked && status === undefined) className += ' locked';
-        
-        return `<div class="${className}" onclick="togglePrayer('${name}')" data-prayer="${name}">
+        return `<div class="${cls}" onclick="togglePrayer('${name}')">
+            <span class="prayer-icon">${icon}</span>
             <span class="prayer-name">${name}</span>
-            <span class="prayer-icon-status">${icon}</span>
-            <span class="prayer-time-range">${time.label}</span>
+            <span class="prayer-time">${time.label}</span>
         </div>`;
     }).join('');
     
@@ -265,335 +409,345 @@ function renderPrayers() {
 }
 
 function togglePrayer(name) {
-    const currentHour = getCurrentHour();
+    const hour = getCurrentHour();
     const time = PRAYER_TIMES[name];
-    const isLocked = currentHour < time.start || currentHour > time.end + 0.5;
+    const isLocked = hour < time.start || hour > time.end + 0.5;
+    if (isLocked && userData.today.prayers[name] === undefined) return;
     
-    if (isLocked && appState.today.prayers[name] === undefined) return;
-    
-    const current = appState.today.prayers[name];
-    if (current === undefined || current === false) {
-        appState.today.prayers[name] = true;
-    } else if (current === true) {
-        appState.today.prayers[name] = false;
+    const cur = userData.today.prayers[name];
+    if (cur === undefined || cur === false) {
+        userData.today.prayers[name] = true;
+    } else {
+        userData.today.prayers[name] = false;
     }
-    
-    saveState();
+    saveData();
     renderPrayers();
+    updateScore();
 }
 
 function checkPrayerStatus() {
-    const statusDiv = document.getElementById('prayerStatus');
-    const prayers = Object.values(appState.today.prayers);
-    const done = prayers.filter(v => v === true).length;
-    const missed = prayers.filter(v => v === false).length;
+    const vals = Object.values(userData.today.prayers);
+    const done = vals.filter(v => v === true).length;
+    const missed = vals.filter(v => v === false).length;
     const total = 5;
     
-    statusDiv.classList.remove('hidden', 'success', 'warning', 'danger');
+    document.getElementById('prayerCount').textContent = `${done}/${total}`;
+    const msgDiv = document.getElementById('prayerMsg');
+    msgDiv.classList.add('hidden');
     
     if (done === total) {
-        statusDiv.classList.add('success');
-        statusDiv.textContent = '⚡ ALL UPLINKS CONNECTED! +5 BONUS POINTS';
-        if (!appState.today._prayerBonusGiven) {
-            bonusPoints += 5;
-            appState.today._prayerBonusGiven = true;
-            saveState();
-        }
+        msgDiv.classList.remove('hidden');
+        msgDiv.classList.add('success');
+        msgDiv.textContent = '⚡ ALL UPLINKS CONNECTED!';
     } else if (missed >= 3) {
-        statusDiv.classList.add('danger');
-        statusDiv.textContent = `⚠️ ${missed} UPLINKS FAILED! STREAK AT RISK!`;
+        msgDiv.classList.remove('hidden');
+        msgDiv.classList.add('danger');
+        msgDiv.textContent = '⚠️ MULTIPLE UPLINKS FAILED!';
     } else if (missed >= 1) {
-        statusDiv.classList.add('warning');
-        statusDiv.textContent = `⚡ ${missed} UPLINK MISSED. RECONNECT.`;
-    } else {
-        statusDiv.classList.add('hidden');
+        msgDiv.classList.remove('hidden');
+        msgDiv.classList.add('warning');
+        msgDiv.textContent = `⚡ ${missed} UPLINK MISSED`;
     }
 }
 
 // ===== TASKS =====
 function renderTasks() {
-    const categories = {
-        critical: { container: 'criticalTasks', points: 'criticalPoints' },
-        important: { container: 'importantTasks', points: 'importantPoints' },
-        good: { container: 'goodTasks', points: 'goodPoints' },
-        bonus: { container: 'bonusTasks', points: 'bonusPoints' }
-    };
+    const cfg = TIER_CONFIG[userData.tier];
+    const container = document.getElementById('tasksList');
+    let html = '';
+    let taskId = 0;
     
-    Object.entries(categories).forEach(([cat, els]) => {
-        const tasks = appState.tasks.filter(t => t.category === cat);
-        const container = document.getElementById(els.container);
-        const pointsEl = document.getElementById(els.points);
-        
-        const catPoints = tasks.reduce((s, t) => s + t.points, 0);
-        pointsEl.textContent = catPoints + ' PTS';
-        
-        container.innerHTML = tasks.map(task => {
-            const checked = appState.today.checked.includes(task.id);
-            const hasProof = appState.today.proofs[task.id];
-            
-            return `<div class="task-row ${checked ? 'completed' : ''}" onclick="toggleTask(${task.id})">
-                <input type="checkbox" class="task-checkbox" ${checked ? 'checked' : ''} 
-                    onclick="event.stopPropagation(); toggleTask(${task.id})">
-                <span class="task-name">${task.name}</span>
-                <span class="proof-upload ${hasProof ? 'has-proof' : ''}" 
-                    onclick="event.stopPropagation(); uploadProof(${task.id})" 
-                    title="Add proof">📸</span>
-                <span class="task-points-badge">${task.points}</span>
-            </div>`;
-        }).join('');
+    // Prayer tasks
+    cfg.prayers.forEach(p => {
+        const checked = userData.today.checked.includes('p_' + taskId);
+        html += taskRow(taskId, p.name, p.pts, true, checked, 'locked-task');
+        taskId++;
+    });
+    
+    // Locked tasks
+    cfg.tasks.forEach(t => {
+        const checked = userData.today.checked.includes('t_' + taskId);
+        html += taskRow(taskId, t.name, t.pts, true, checked, 'locked-task');
+        taskId++;
+    });
+    
+    // Custom tasks
+    userData.customTasks.forEach((t, i) => {
+        if (t) {
+            const checked = userData.today.checked.includes('c_' + i);
+            html += taskRow(taskId, t.name, t.pts, false, checked, 'custom-task', i);
+            taskId++;
+        }
+    });
+    
+    container.innerHTML = html;
+    
+    // Edit events
+    container.querySelectorAll('.task-edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const idx = parseInt(btn.dataset.customIndex);
+            editCustomTask(idx);
+        });
     });
 }
 
-function toggleTask(id) {
-    const idx = appState.today.checked.indexOf(id);
-    if (idx >= 0) {
-        appState.today.checked.splice(idx, 1);
-    } else {
-        appState.today.checked.push(id);
-    }
-    saveState();
-    renderTasks();
+function taskRow(id, name, pts, locked, checked, cls, customIndex) {
+    return `<div class="task-row ${cls} ${checked ? 'completed' : ''}" onclick="toggleTask('${locked ? 'lt' : 'c'}_${customIndex !== undefined ? customIndex : id}')">
+        <input type="checkbox" class="task-checkbox" ${checked ? 'checked' : ''} onclick="event.stopPropagation(); toggleTask('${locked ? 'lt' : 'c'}_${customIndex !== undefined ? customIndex : id}')">
+        <span class="task-name">${name}</span>
+        <span class="task-points">${pts}</span>
+        ${!locked ? `<span class="task-edit" data-custom-index="${customIndex}" onclick="event.stopPropagation(); editCustomTask(${customIndex})">✏️</span>` : ''}
+    </div>`;
 }
 
-function uploadProof(id) {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.onchange = () => {
-        if (input.files[0]) {
-            appState.today.proofs[id] = true;
-            bonusPoints += 2;
-            saveState();
-            renderTasks();
-            updateTitle();
+function toggleTask(key) {
+    const idx = userData.today.checked.indexOf(key);
+    if (idx >= 0) {
+        userData.today.checked.splice(idx, 1);
+    } else {
+        userData.today.checked.push(key);
+    }
+    saveData();
+    renderTasks();
+    updateScore();
+}
+
+function editCustomTask(index) {
+    const task = userData.customTasks[index];
+    const newName = prompt('Edit task name:', task?.name || 'Custom Task');
+    if (newName && newName.trim()) {
+        task.name = newName.trim();
+        const newPts = parseInt(prompt('Points (1-10):', task.pts));
+        if (newPts >= 1 && newPts <= 10) {
+            task.pts = newPts;
         }
-    };
-    input.click();
+        saveData();
+        renderTasks();
+        updateScore();
+    }
 }
 
 // ===== SCORE =====
 function calculateScore() {
+    const cfg = TIER_CONFIG[userData.tier];
     let score = 0;
-    appState.today.checked.forEach(id => {
-        const task = appState.tasks.find(t => t.id === id);
-        if (task) score += task.points;
+    let id = 0;
+    
+    // Prayer points
+    cfg.prayers.forEach(() => {
+        if (userData.today.checked.includes('p_' + id)) {
+            score += cfg.prayers[id].pts;
+        }
+        id++;
+    });
+    
+    // Locked task points
+    cfg.tasks.forEach((t, i) => {
+        if (userData.today.checked.includes('t_' + (id))) {
+            score += t.pts;
+        }
+        id++;
+    });
+    
+    // Custom task points
+    userData.customTasks.forEach((t, i) => {
+        if (t && userData.today.checked.includes('c_' + i)) {
+            score += t.pts;
+        }
     });
     
     // Prayer bonus
-    const allPrayersDone = Object.values(appState.today.prayers).filter(v => v === true).length === 5;
-    if (allPrayersDone) score += 5;
+    const allPrayers = Object.values(userData.today.prayers).filter(v => v === true).length === 5;
+    if (allPrayers) score += 2;
     
-    appState.today.score = score;
-    saveState();
-    displayScore(score);
+    userData.today.score = score;
+    saveData();
+    return score;
 }
 
-function displayScore(score) {
-    const resultDiv = document.getElementById('scoreResult');
-    const msgDiv = document.getElementById('scoreMessage');
-    const emojiDiv = document.getElementById('scoreEmoji');
+function updateScore() {
+    const score = calculateScore();
+    document.getElementById('scoreBadge').textContent = `${score}/100`;
+    document.getElementById('currentScore')?.remove();
+}
+
+function displayScoreResult(score) {
+    const div = document.getElementById('scoreResult');
+    const msg = document.getElementById('scoreMsg');
+    const emoji = document.getElementById('scoreEmoji');
     
-    document.getElementById('currentScore').textContent = score;
-    resultDiv.classList.remove('hidden', 'reward', 'neutral', 'punishment');
+    div.classList.remove('hidden', 'reward', 'neutral', 'punishment');
+    document.getElementById('scoreBadge').textContent = `${score}/100`;
     
-    if (score >= 180) {
-        resultDiv.classList.add('reward');
-        msgDiv.textContent = 'Beast mode. Even your rival is scared.';
-        emojiDiv.textContent = '🗿';
-        bonusPoints += 10;
-    } else if (score >= 140) {
-        resultDiv.classList.add('neutral');
-        msgDiv.textContent = 'Decent. But decent won\'t beat your competition.';
-        emojiDiv.textContent = '⚡';
-        bonusPoints += 5;
-    } else if (score >= 100) {
-        resultDiv.classList.add('neutral');
-        msgDiv.textContent = 'Bare minimum. Your crush isn\'t impressed.';
-        emojiDiv.textContent = '💀';
+    if (score >= 85) {
+        div.classList.add('reward');
+        msg.textContent = 'Beast mode. Even your rival is scared.';
+        emoji.textContent = '🗿';
+    } else if (score >= 70) {
+        div.classList.add('neutral');
+        msg.textContent = 'Decent. But grind harder.';
+        emoji.textContent = '⚡';
+    } else if (score >= 50) {
+        div.classList.add('neutral');
+        msg.textContent = 'Bare minimum. Step it up.';
+        emoji.textContent = '💀';
     } else {
-        resultDiv.classList.add('punishment');
-        msgDiv.textContent = 'Pathetic. Your rival just overtook you.';
-        emojiDiv.textContent = '😤';
+        div.classList.add('punishment');
+        msg.textContent = 'Weak. Your rival just won.';
+        emoji.textContent = '😤';
     }
     
-    saveState();
-    updateTitle();
-    resultDiv.scrollIntoView({ behavior: 'smooth' });
+    div.scrollIntoView({ behavior: 'smooth' });
 }
 
 // ===== NEXT DAY =====
 function nextDay() {
-    const score = appState.today.score || 0;
-    const allPrayersMissed = Object.values(appState.today.prayers).filter(v => v === false).length === 5;
+    const score = userData.today.score;
     
-    if (score >= 100 && !allPrayersMissed) {
-        appState.streak.current += 1;
-        if (appState.streak.current > appState.streak.best) {
-            appState.streak.best = appState.streak.current;
+    if (score >= 60) {
+        userData.streak.current = getDayNumber() + 1;
+        if (userData.streak.current > userData.totalDays) {
+            userData.streak.current = userData.totalDays;
         }
-        bonusPoints += 5;
+        if (userData.streak.current > userData.streak.best) {
+            userData.streak.best = userData.streak.current;
+        }
     } else {
-        appState.streak.current = Math.max(3, appState.streak.current - 1);
+        userData.streak.current = Math.max(1, getDayNumber() - 1);
     }
     
-    archiveDay();
-    appState.today.checked = [];
-    appState.today.prayers = {};
-    appState.today.proofs = {};
-    appState.today.score = 0;
-    appState.today.dateKey = getTodayKey();
-    appState.today._prayerBonusGiven = false;
+    archiveToday();
+    userData.today.dateKey = getTodayKey();
+    userData.today.checked = [];
+    userData.today.prayers = {};
+    userData.today.score = 0;
     
-    saveState();
+    saveData();
     renderAll();
     document.getElementById('scoreResult').classList.add('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function resetDaily() {
-    if (confirm('ABORT MISSION? This clears today\'s progress. Continue?')) {
-        appState.today.checked = [];
-        appState.today.prayers = {};
-        appState.today.proofs = {};
-        appState.today.score = 0;
-        appState.today._prayerBonusGiven = false;
-        saveState();
+    if (confirm('ABORT MISSION? Clear today\'s progress?')) {
+        userData.today.checked = [];
+        userData.today.prayers = {};
+        userData.today.score = 0;
+        saveData();
         renderAll();
         document.getElementById('scoreResult').classList.add('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
-// ===== RESET TIMER =====
-function updateResetTimer() {
-    const now = getKarachiTime();
-    const midnight = new Date(now);
-    midnight.setHours(24, 0, 0, 0);
-    const diff = midnight - now;
-    
-    const h = Math.floor(diff / 3600000);
-    const m = Math.floor((diff % 3600000) / 60000);
-    const s = Math.floor((diff % 60000) / 1000);
-    
-    document.getElementById('resetTimer').textContent = 
-        `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+function restoreStreak() {
+    const restores = getRestores();
+    if (restores <= 0) {
+        alert('No restores left this month!');
+        return;
+    }
+    document.getElementById('restoreDay').textContent = getDayNumber();
+    document.getElementById('restoreModalCount').textContent = restores;
+    document.getElementById('restoreModal').classList.remove('hidden');
 }
 
-// ===== PROFILES =====
-function renderProfileDropdown() {
-    const select = document.getElementById('profileSelect');
-    select.innerHTML = '<option value="">Select Pilot</option>';
-    allProfiles.forEach(p => {
-        const emoji = { self: '👤', friend: '🤝', rival: '🆚', crush: '💕' }[p.type] || '👤';
-        select.innerHTML += `<option value="${p.id}" ${p.id === activeProfileId ? 'selected' : ''}>
-            ${emoji} ${p.name}
-        </option>`;
-    });
+function confirmRestore() {
+    if (useRestore()) {
+        userData.streak.current = Math.max(userData.streak.current, getDayNumber());
+        userData.today.checked = [];
+        userData.today.prayers = {};
+        userData.today.score = 0;
+        saveData();
+        renderAll();
+    }
+    document.getElementById('restoreModal').classList.add('hidden');
 }
 
-function createProfile(name, type, goal, age) {
-    const id = 'p_' + Date.now();
-    const profile = { id, name, type, goal, age, createdAt: new Date().toISOString() };
-    allProfiles.push(profile);
-    saveProfiles();
-    localStorage.setItem(STORAGE_KEYS.DATA + id, JSON.stringify(getDefaultState()));
-    switchProfile(id);
+// ===== SETTINGS =====
+function openSettings() {
+    document.getElementById('editName').value = userData.name;
+    document.getElementById('editMode').value = userData.tier;
+    document.getElementById('settingsModal').classList.remove('hidden');
 }
 
-function switchProfile(id) {
-    activeProfileId = id;
-    localStorage.setItem(STORAGE_KEYS.ACTIVE, id);
-    loadProfile(id);
+function saveSettings() {
+    const name = document.getElementById('editName').value.trim();
+    if (name) userData.name = name;
+    saveData();
+    document.getElementById('settingsModal').classList.add('hidden');
     renderAll();
-    renderProfileDropdown();
 }
 
-// ===== EVENT LISTENERS =====
+// ===== EVENTS =====
 function setupEvents() {
-    document.getElementById('totalDaysInput').addEventListener('change', function() {
-        let val = parseInt(this.value);
-        if (isNaN(val) || val < 1) val = 30;
-        if (val > 365) val = 365;
-        appState.settings.totalDays = val;
-        saveState();
-        updateUI();
+    document.getElementById('calculateBtn').addEventListener('click', () => {
+        const score = calculateScore();
+        displayScoreResult(score);
     });
     
-    document.getElementById('calculateBtn').addEventListener('click', calculateScore);
     document.getElementById('nextDayBtn').addEventListener('click', nextDay);
     document.getElementById('resetDailyBtn').addEventListener('click', resetDaily);
-    
-    document.getElementById('profileSelect').addEventListener('change', function() {
-        if (this.value) switchProfile(this.value);
+    document.getElementById('restoreBtn').addEventListener('click', restoreStreak);
+    document.getElementById('confirmRestore').addEventListener('click', confirmRestore);
+    document.getElementById('closeRestore').addEventListener('click', () => {
+        document.getElementById('restoreModal').classList.add('hidden');
     });
     
-    document.getElementById('addProfileBtn').addEventListener('click', () => {
-        document.getElementById('profileModal').classList.remove('hidden');
+    document.getElementById('settingsBtn').addEventListener('click', openSettings);
+    document.getElementById('saveSettings').addEventListener('click', saveSettings);
+    document.getElementById('closeSettings').addEventListener('click', () => {
+        document.getElementById('settingsModal').classList.add('hidden');
     });
     
-    document.getElementById('cancelProfileBtn').addEventListener('click', () => {
-        document.getElementById('profileModal').classList.add('hidden');
-    });
-    
-    document.getElementById('saveProfileBtn').addEventListener('click', () => {
-        const name = document.getElementById('newProfileName').value.trim();
-        const type = document.getElementById('newProfileType').value;
-        const goal = document.getElementById('newProfileGoal').value;
-        const age = parseInt(document.getElementById('newProfileAge').value) || 18;
-        
-        if (!name) return alert('Enter pilot name!');
-        createProfile(name, type, goal, age);
-        document.getElementById('profileModal').classList.add('hidden');
-        document.getElementById('newProfileName').value = '';
-    });
-    
-    document.getElementById('closeScoreBtn').addEventListener('click', () => {
-        document.getElementById('scoreDetailModal').classList.add('hidden');
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) overlay.classList.add('hidden');
+        });
     });
     
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            document.getElementById('profileModal').classList.add('hidden');
-            document.getElementById('scoreDetailModal').classList.add('hidden');
+            document.querySelectorAll('.modal-overlay').forEach(o => o.classList.add('hidden'));
         }
     });
 }
 
 // ===== INIT =====
 function init() {
-    initStarfield();
-    loadProfiles();
+    initParticles();
     
-    activeProfileId = localStorage.getItem(STORAGE_KEYS.ACTIVE);
-    if (activeProfileId && allProfiles.find(p => p.id === activeProfileId)) {
-        loadProfile(activeProfileId);
-    } else if (allProfiles.length > 0) {
-        activeProfileId = allProfiles[0].id;
-        loadProfile(activeProfileId);
-    } else {
-        // Create default profile
-        createProfile('ZAYN', 'self', 'exam', 18);
-    }
+    if (!loadData()) return; // Onboarding shown
     
     renderAll();
-    renderProfileDropdown();
     setupEvents();
     
-    // Update timer every second
-    setInterval(updateResetTimer, 1000);
-    
-    // Check for day reset every minute
+    // Check reset every minute
     setInterval(() => {
-        if (appState && appState.today.dateKey !== getTodayKey()) {
-            checkDayReset();
+        if (userData && userData.today.dateKey !== getTodayKey()) {
+            archiveToday();
+            userData.today.dateKey = getTodayKey();
+            userData.today.checked = [];
+            userData.today.prayers = {};
+            userData.today.score = 0;
+            userData.streak.current = getDayNumber();
+            
+            const currentMonth = new Date().getMonth();
+            if (userData.lastResetMonth !== currentMonth) {
+                userData.lastResetMonth = currentMonth;
+                localStorage.setItem(RESTORE_KEY, '5');
+            }
+            saveData();
             renderAll();
         }
     }, 60000);
 }
 
-// Global functions for onclick
+// Global functions
 window.togglePrayer = togglePrayer;
 window.toggleTask = toggleTask;
-window.uploadProof = uploadProof;
+window.editCustomTask = editCustomTask;
+window.onboardNext1 = onboardNext1;
+window.onboardSelectGender = onboardSelectGender;
+window.onboardSelectTier = onboardSelectTier;
 
 document.addEventListener('DOMContentLoaded', init);
