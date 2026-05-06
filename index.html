@@ -1,158 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#0D1117">
     <title>ZSYS • Command Center</title>
     <link rel="stylesheet" href="dashboard.css">
 </head>
 <body>
     
-    <!-- PARTICLES -->
-    <canvas id="particleCanvas"></canvas>
+    <div class="app-bg"></div>
     
-    <!-- EFFECTS -->
-    <div class="scanlines"></div>
-    <div class="vignette"></div>
-    
-    <div class="cosmic-container">
+    <div class="container">
         
         <!-- HEADER -->
-        <header class="hud-header">
-            <div class="header-left">
-                <span class="rank-emoji" id="rankEmoji">🗿</span>
+        <header class="header">
+            <div class="header-top">
                 <div>
-                    <span class="pilot-name" id="pilotName">ZAYN</span>
-                    <span class="pilot-mode" id="pilotMode">SIGMA • HARD MODE</span>
+                    <h1 class="name" id="pilotName">ZAYN</h1>
+                    <span class="tier-tag" id="pilotMode">SIGMA • HARD MODE</span>
+                </div>
+                <div class="header-actions">
+                    <span class="day-pill" id="dayBadge">DAY 1</span>
+                    <button class="icon-btn" id="settingsBtn" title="Settings">⚙️</button>
                 </div>
             </div>
-            <div class="header-right">
-                <span class="day-badge" id="dayBadge">DAY 1</span>
-                <button class="settings-btn" id="settingsBtn" title="Settings">⚙️</button>
+            
+            <!-- QUOTE BOX -->
+            <div class="quote-box" id="quoteBox">
+                <span class="quote-text" id="quoteText"></span>
+                <span class="quote-cursor">▌</span>
             </div>
         </header>
         
-        <main class="main-scroll">
+        <!-- MAIN -->
+        <main class="main">
             
-            <!-- PROGRESS -->
-            <section class="card progress-card">
-                <div class="progress-header">
-                    <span>MISSION PROGRESS</span>
-                    <span id="progressPercent">3%</span>
+            <!-- PROGRESS CARD -->
+            <div class="card">
+                <div class="card-header">
+                    <span>📊 MISSION PROGRESS</span>
+                    <span class="badge green" id="progressPercent">3%</span>
                 </div>
-                <div class="progress-bar">
+                <div class="progress-track">
                     <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-info">
+                <div class="progress-labels">
                     <span>Day <strong id="currentDay">1</strong> of <strong id="totalDays">30</strong></span>
-                    <span class="progress-start-date" id="startDate">Started: Jan 16</span>
+                    <span class="text-dim">Started: <span id="startDate">Jan 16</span></span>
                 </div>
-                <div class="streak-row">
-                    <div class="streak-item">
-                        <span>🔥 Streak</span>
-                        <strong id="streakCount">1</strong>
+                <div class="stat-row">
+                    <div class="stat">
+                        <span class="stat-label">🔥 Streak</span>
+                        <span class="stat-value" id="streakCount">1</span>
                     </div>
-                    <div class="streak-item">
-                        <span>👑 Best</span>
-                        <strong id="bestStreak">1</strong>
+                    <div class="stat">
+                        <span class="stat-label">👑 Best</span>
+                        <span class="stat-value gold" id="bestStreak">1</span>
                     </div>
-                    <div class="streak-item">
-                        <span>🔄 Restore</span>
-                        <strong id="restoreCount">5</strong>
+                    <div class="stat">
+                        <span class="stat-label">🔄 Restore</span>
+                        <span class="stat-value cyan" id="restoreCount">5</span>
                     </div>
                 </div>
-            </section>
+            </div>
             
-            <!-- 7-DAY WEEK -->
-            <section class="card week-card">
-                <div class="week-header">
+            <!-- WEEK CARD -->
+            <div class="card">
+                <div class="card-header">
                     <span>📅 THIS WEEK</span>
-                    <span class="week-range" id="weekRange">Jan 13 - Jan 19</span>
+                    <span class="text-dim" id="weekRange">Jan 13 - Jan 19</span>
                 </div>
-                <div class="week-grid" id="weekGrid"></div>
-            </section>
+                <div class="week-row" id="weekGrid"></div>
+            </div>
             
-            <!-- PRAYER -->
-            <section class="card prayer-card">
-                <div class="prayer-header">
+            <!-- PRAYER CARD -->
+            <div class="card">
+                <div class="card-header">
                     <span>🕌 UPLINK STATUS</span>
-                    <span class="prayer-count" id="prayerCount">0/5</span>
+                    <span class="badge purple" id="prayerCount">0/5</span>
                 </div>
-                <div class="prayer-grid" id="prayerGrid"></div>
-                <div class="prayer-msg hidden" id="prayerMsg"></div>
-            </section>
+                <div class="prayer-row" id="prayerGrid"></div>
+                <div class="msg hidden" id="prayerMsg"></div>
+            </div>
             
-            <!-- TASKS -->
-            <section class="card tasks-card">
-                <div class="tasks-header">
+            <!-- TASKS CARD -->
+            <div class="card">
+                <div class="card-header">
                     <span>📋 MISSION OBJECTIVES</span>
-                    <span class="score-badge" id="scoreBadge">0/100</span>
+                    <span class="badge cyan" id="scoreBadge">0/100</span>
                 </div>
-                <div class="tasks-list" id="tasksList"></div>
-                <button class="scan-btn" id="calculateBtn">
+                <div class="task-list" id="tasksList"></div>
+                <button class="btn primary full" id="calculateBtn">
                     ⚡ SCAN POWER LEVEL
                 </button>
-                <div class="score-result hidden" id="scoreResult">
-                    <div class="score-msg" id="scoreMsg"></div>
-                    <div class="score-emoji" id="scoreEmoji"></div>
+                <div class="msg hidden" id="scoreResult">
+                    <span id="scoreMsg"></span>
+                    <span class="msg-emoji" id="scoreEmoji"></span>
                 </div>
-            </section>
+            </div>
             
-            <!-- RESTORE -->
-            <section class="card restore-card" id="restoreCard">
-                <div class="restore-info">
-                    <span>🔄 STREAK RESTORE AVAILABLE</span>
-                    <span class="restore-count" id="restoreLeft">5 left this month</span>
-                </div>
-                <button class="restore-btn" id="restoreBtn">
-                    RESTORE STREAK
-                </button>
-            </section>
+            <!-- RESTORE CARD -->
+            <div class="card center">
+                <span class="text-dim">🔄 STREAK RESTORE</span>
+                <span class="restore-num" id="restoreLeft">5 left this month</span>
+                <button class="btn outline full" id="restoreBtn">RESTORE STREAK</button>
+            </div>
             
         </main>
         
         <!-- FOOTER -->
-        <footer class="hud-footer">
-            <button class="footer-btn danger" id="resetDailyBtn">
-                ABORT
-            </button>
-            <button class="footer-btn primary" id="nextDayBtn">
-                NEXT ORBIT 🚀
-            </button>
+        <footer class="footer">
+            <button class="btn danger" id="resetDailyBtn">ABORT</button>
+            <button class="btn primary" id="nextDayBtn">NEXT ORBIT 🚀</button>
         </footer>
         
     </div>
     
-    <!-- MODALS -->
-    <div class="modal-overlay hidden" id="settingsModal">
+    <!-- SETTINGS MODAL -->
+    <div class="modal hidden" id="settingsModal">
         <div class="modal-card">
             <h3>⚙️ SETTINGS</h3>
-            <div class="modal-body">
-                <label>Name</label>
-                <input type="text" id="editName" class="modal-input">
-                <label>Mode (Cannot change for 7 days)</label>
-                <select id="editMode" class="modal-input" disabled>
+            
+            <div class="setting-group">
+                <span class="setting-label">🎨 APPEARANCE</span>
+                <div class="theme-toggle">
+                    <button class="theme-btn active" id="darkBtn" onclick="setTheme('dark')">🌙 DARK</button>
+                    <button class="theme-btn" id="lightBtn" onclick="setTheme('light')">☀️ LIGHT</button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <span class="setting-label">👤 PROFILE</span>
+                <input type="text" id="editName" class="input" placeholder="Name">
+                <select id="editTier" class="input">
                     <option value="easy">🟢 EASY</option>
                     <option value="medium">🟡 MEDIUM</option>
                     <option value="hard">🔴 HARD</option>
                 </select>
-                <button class="scan-btn full" id="saveSettings">SAVE</button>
-                <button class="footer-btn danger full" id="closeSettings">CANCEL</button>
             </div>
+            
+            <button class="btn primary full" id="saveSettings">SAVE CHANGES</button>
+            <button class="btn outline full" id="exportData">📤 EXPORT DATA</button>
+            <button class="btn danger full" id="closeSettings">CLOSE</button>
         </div>
     </div>
     
-    <div class="modal-overlay hidden" id="restoreModal">
+    <!-- RESTORE MODAL -->
+    <div class="modal hidden" id="restoreModal">
         <div class="modal-card">
             <h3>🔄 RESTORE STREAK</h3>
-            <div class="modal-body">
-                <p>Your streak broke at Day <strong id="restoreDay">0</strong></p>
-                <p>Restore to continue from where you left?</p>
-                <p class="small-text">Restores left this month: <strong id="restoreModalCount">5</strong></p>
-                <button class="scan-btn full" id="confirmRestore">YES, RESTORE</button>
-                <button class="footer-btn danger full" id="closeRestore">CANCEL</button>
-            </div>
+            <p>Your streak will be restored.</p>
+            <p class="text-dim">Restores left: <strong id="restoreModalCount">5</strong></p>
+            <button class="btn primary full" id="confirmRestore">YES, RESTORE</button>
+            <button class="btn outline full" id="closeRestore">CANCEL</button>
         </div>
     </div>
     
