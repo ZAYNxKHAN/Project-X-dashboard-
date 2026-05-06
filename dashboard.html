@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#020408">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>ZSYS • Command Center</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    
+    <!-- STARFIELD BACKGROUND -->
+    <canvas id="starfieldCanvas"></canvas>
+    
+    <!-- APP CONTAINER -->
+    <div class="cosmic-container">
+        
+        <!-- ===== HEADER HUD ===== -->
+        <header class="hud-header">
+            <div class="hud-frame">
+                <div class="hud-corner top-left"></div>
+                <div class="hud-corner top-right"></div>
+                <div class="header-content">
+                    <div class="pilot-info">
+                        <span class="hud-label">PILOT</span>
+                        <span class="hud-value" id="pilotName">ZAYN</span>
+                    </div>
+                    <div class="ship-info">
+                        <span class="hud-label">ZSYS v2.0</span>
+                        <span class="status-indicator online" id="statusDot"></span>
+                        <span class="status-text">ONLINE</span>
+                    </div>
+                    <div class="rank-display" id="rankDisplay">
+                        <span class="rank-icon">🥷</span>
+                        <span class="rank-text">WARRIOR</span>
+                    </div>
+                </div>
+                <div class="hud-corner bottom-left"></div>
+                <div class="hud-corner bottom-right"></div>
+            </div>
+            
+            <!-- Profile Selector -->
+            <div class="profile-bar">
+                <select id="profileSelect" class="profile-select">
+                    <option value="">Select Pilot</option>
+                </select>
+                <button id="addProfileBtn" class="hud-btn-small" title="Add Pilot">+</button>
+                <button id="notifBtn" class="hud-btn-small" title="Notifications">🔔<span id="notifBadge" class="notif-badge hidden">0</span></button>
+            </div>
+        </header>
+        
+        <!-- ===== MAIN SCROLL AREA ===== -->
+        <main class="main-scroll">
+            
+            <!-- MISSION STATUS PANEL -->
+            <section class="hud-panel mission-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">🌌</span>
+                    <span class="panel-title">MISSION STATUS</span>
+                </div>
+                <div class="panel-body">
+                    <div class="mission-day">
+                        <span class="mission-label">MISSION DAY</span>
+                        <span class="mission-value" id="currentDayDisplay">1</span>
+                        <span class="mission-separator">OF</span>
+                        <input type="number" id="totalDaysInput" class="mission-input" min="1" max="365" value="30">
+                    </div>
+                    
+                    <div class="progress-section">
+                        <div class="progress-bar-hud">
+                            <div class="progress-fill-hud" id="progressFill"></div>
+                            <div class="progress-scan"></div>
+                        </div>
+                        <div class="progress-label" id="progressLabel">WARP: 1 / 30 DAYS</div>
+                    </div>
+                    
+                    <div class="streak-stats">
+                        <div class="stat-box">
+                            <span class="stat-label">STREAK SEQUENCE</span>
+                            <span class="stat-value" id="streakCount">1</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">SEQUENCE RECORD</span>
+                            <span class="stat-value record" id="bestStreak">1</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">INTEGRITY</span>
+                            <span class="stat-value trust" id="integrityScore">100%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SPIRITUAL UPLINK PANEL -->
+            <section class="hud-panel prayer-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">🕌</span>
+                    <span class="panel-title">SPIRITUAL UPLINK</span>
+                    <span class="time-window" id="prayerTimeWindow"></span>
+                </div>
+                <div class="panel-body">
+                    <div class="prayer-grid" id="prayerGrid">
+                        <!-- Rendered by JS -->
+                    </div>
+                    <div id="prayerStatus" class="prayer-status hidden"></div>
+                </div>
+            </section>
+            
+            <!-- MISSION OBJECTIVES PANEL -->
+            <section class="hud-panel tasks-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">📋</span>
+                    <span class="panel-title">MISSION OBJECTIVES</span>
+                    <span class="points-total">200 PTS</span>
+                </div>
+                <div class="panel-body">
+                    <!-- Category: CRITICAL -->
+                    <div class="task-category">
+                        <div class="category-header critical">
+                            <span>🔥 NON-NEGOTIABLE</span>
+                            <span class="category-points" id="criticalPoints">0</span>
+                        </div>
+                        <div class="task-list" id="criticalTasks"></div>
+                    </div>
+                    
+                    <!-- Category: IMPORTANT -->
+                    <div class="task-category">
+                        <div class="category-header important">
+                            <span>⚡ DAILY GRIND</span>
+                            <span class="category-points" id="importantPoints">0</span>
+                        </div>
+                        <div class="task-list" id="importantTasks"></div>
+                    </div>
+                    
+                    <!-- Category: GOOD HABIT -->
+                    <div class="task-category">
+                        <div class="category-header good">
+                            <span>✅ CHARACTER BUILDING</span>
+                            <span class="category-points" id="goodPoints">0</span>
+                        </div>
+                        <div class="task-list" id="goodTasks"></div>
+                    </div>
+                    
+                    <!-- Category: BONUS -->
+                    <div class="task-category">
+                        <div class="category-header bonus">
+                            <span>⭐ EXTRA CREDIT</span>
+                            <span class="category-points" id="bonusPoints">0</span>
+                        </div>
+                        <div class="task-list" id="bonusTasks"></div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- POWER LEVEL PANEL -->
+            <section class="hud-panel score-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">⚡</span>
+                    <span class="panel-title">POWER LEVEL</span>
+                </div>
+                <div class="panel-body">
+                    <div class="score-display">
+                        <span class="score-current" id="currentScore">0</span>
+                        <span class="score-divider">/</span>
+                        <span class="score-total" id="totalPoints">200</span>
+                    </div>
+                    <button id="calculateBtn" class="hud-btn primary full-width">
+                        ⚡ SCAN POWER LEVEL
+                    </button>
+                    <div id="scoreResult" class="score-result hidden">
+                        <div id="scoreMessage" class="score-message"></div>
+                        <div id="scoreEmoji" class="score-emoji"></div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- RESET TIMER -->
+            <section class="hud-panel timer-panel">
+                <div class="panel-body center">
+                    <span class="timer-label">NEXT CYCLE RESET</span>
+                    <span class="timer-countdown" id="resetTimer">--:--:--</span>
+                    <span class="timer-sub">Auto-reset @ 00:00 KHI</span>
+                </div>
+            </section>
+            
+        </main>
+        
+        <!-- ===== BOTTOM HUD BAR ===== -->
+        <footer class="hud-footer">
+            <button id="resetDailyBtn" class="hud-btn danger">
+                🔄 ABORT MISSION
+            </button>
+            <button id="nextDayBtn" class="hud-btn primary">
+                🚀 NEXT ORBIT
+            </button>
+        </footer>
+        
+    </div>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal-overlay hidden">
+        <div class="modal-content hud-panel">
+            <div class="panel-header">
+                <span class="panel-icon">👤</span>
+                <span class="panel-title">NEW PILOT REGISTRATION</span>
+            </div>
+            <div class="panel-body">
+                <input type="text" id="newProfileName" class="modal-input" placeholder="Pilot Name">
+                <select id="newProfileType" class="modal-input">
+                    <option value="self">Self</option>
+                    <option value="friend">Crew Member</option>
+                    <option value="rival">Rival 🆚</option>
+                    <option value="crush">Crush 💕</option>
+                </select>
+                <select id="newProfileGoal" class="modal-input">
+                    <option value="exam">Exam Prep (FPSC/CSS/PPSC)</option>
+                    <option value="fitness">Fitness & Health</option>
+                    <option value="business">Business / Side Hustle</option>
+                    <option value="spiritual">Spiritual Focus</option>
+                    <option value="custom">Custom Goal</option>
+                </select>
+                <input type="number" id="newProfileAge" class="modal-input" placeholder="Age (for roast style)" min="10" max="100">
+                <div class="modal-buttons">
+                    <button id="saveProfileBtn" class="hud-btn primary">REGISTER PILOT</button>
+                    <button id="cancelProfileBtn" class="hud-btn danger">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Score Detail Modal -->
+    <div id="scoreDetailModal" class="modal-overlay hidden">
+        <div class="modal-content hud-panel">
+            <div class="panel-header">
+                <span class="panel-icon">📊</span>
+                <span class="panel-title">MISSION LOG</span>
+            </div>
+            <div class="panel-body" id="scoreDetailBody">
+            </div>
+            <button id="closeScoreBtn" class="hud-btn primary full-width">ACKNOWLEDGE</button>
+        </div>
+    </div>
+    
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
